@@ -2,48 +2,51 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Controllers\Controller;
+use App\Models\Pedido;
 use Illuminate\Http\Request;
 
 class PedidoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
     public function index()
     {
-        //
+        return response()->json(Pedido::with('itens')->get());
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'user_id' => 'required|integer',
+            'data_pedido' => 'required|date',
+            'status' => 'required|string',
+        ]);
+
+        $pedido = Pedido::create($validated);
+        return response()->json($pedido, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+
+    public function show(Pedido $pedido)
     {
-        //
+        return response()->json($pedido->load('itens'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
+
+    public function update(Request $request, Pedido $pedido)
     {
-        //
+        $validated = $request->validate([
+            'user_id' => 'sometimes|integer',
+            'data_pedido' => 'sometimes|date',
+            'status' => 'sometimes|string',
+        ]);
+
+        $pedido->update($validated);
+        return response()->json($pedido);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
+    public function destroy(Pedido $pedido)
     {
-        //
+        $pedido->delete();
+        return response()->json(null, 204);
     }
 }
